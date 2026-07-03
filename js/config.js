@@ -1,4 +1,4 @@
-// CMAINCRAFT — global configuration + tiny utils
+// MCraft — global configuration + tiny utils
 window.MC = window.MC || {};
 
 MC.CFG = {

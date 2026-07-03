@@ -1,4 +1,4 @@
-// CMAINCRAFT bootstrap: renderer, chunk streaming, input, game loop, persistence.
+// MCraft bootstrap: renderer, chunk streaming, input, game loop, persistence.
 (function () {
   const CFG = MC.CFG, U = MC.util, B = MC.B;
   const { CHUNK, HEIGHT, RENDER_DIST } = CFG;

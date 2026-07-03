@@ -1,5 +1,5 @@
 // Turns chunk voxel data into three.js BufferGeometries.
-// Per-vertex ambient occlusion + fake column skylight give the Minecraft look.
+// Per-vertex ambient occlusion + fake column skylight give the blocky look.
 MC.Mesher = (function () {
   const CFG = MC.CFG, B = MC.B;
   const { CHUNK, HEIGHT } = CFG;
