@@ -60,8 +60,9 @@ MC.Player = function (world) {
     if (keys.has('KeyS')) fz += 1;
     if (keys.has('KeyA')) fx -= 1;
     if (keys.has('KeyD')) fx += 1;
+    if (MC.Touch && MC.Touch.enabled) { fx += MC.Touch.moveX; fz += MC.Touch.moveZ; }
     const len = Math.hypot(fx, fz);
-    if (len) { fx /= len; fz /= len; }
+    if (len > 1) { fx /= len; fz /= len; } // keep analog (joystick) below full speed
     // rotate input into world space so W always follows the camera forward
     const sin = Math.sin(self.yaw), cos = Math.cos(self.yaw);
     const wx = fx * cos + fz * sin;

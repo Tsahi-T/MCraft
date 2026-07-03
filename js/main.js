@@ -1,12 +1,16 @@
 // MCraft bootstrap: renderer, chunk streaming, input, game loop, persistence.
 (function () {
   const CFG = MC.CFG, U = MC.util, B = MC.B;
-  const { CHUNK, HEIGHT, RENDER_DIST } = CFG;
 
   if (typeof THREE === 'undefined') return; // CDN failed; message already shown
 
-  // --- seed & persistence -------------------------------------------------
   const params = new URLSearchParams(location.search);
+  // primary pointer is a finger => phone/tablet (?touch=1 forces it, for testing)
+  const IS_TOUCH = matchMedia('(pointer: coarse)').matches || params.get('touch') === '1';
+  if (IS_TOUCH) CFG.RENDER_DIST = 5; // lighter load for mobile GPUs
+  const { CHUNK, HEIGHT, RENDER_DIST } = CFG;
+
+  // --- seed & persistence -------------------------------------------------
   let seedText = params.get('seed');
   if (!seedText) seedText = localStorage.getItem('cmc_lastseed');
   if (!seedText) seedText = String((Math.random() * 1e9) | 0);
@@ -227,33 +231,41 @@
   function targetBlock() {
     return MC.raycast(world, player.eyePos(eyeV), player.lookDir(dirV), CFG.REACH);
   }
+  // ray through an arbitrary screen point (touch taps aim where the finger is)
+  const ndcV = new THREE.Vector3();
+  function screenBlock(sx, sy) {
+    ndcV.set((sx / window.innerWidth) * 2 - 1, -(sy / window.innerHeight) * 2 + 1, 0.5)
+      .unproject(camera).sub(camera.position).normalize();
+    return MC.raycast(world, player.eyePos(eyeV), ndcV, CFG.REACH + 2);
+  }
+  function tryBreak(hit) {
+    if (!hit || !MC.BLOCKS[hit.id].breakable) return false;
+    // converting the unwrapped ray hit to wrapped coords happens inside setBlock
+    world.setBlock(hit.x, hit.y, hit.z, B.AIR);
+    effects.burst(hit.x, hit.y, hit.z, hit.id);
+    effects.sound.break(MC.BLOCKS[hit.id].hard);
+    swing = 1;
+    return true;
+  }
+  function tryPlace(hit) {
+    if (!hit) return false;
+    const px = hit.x + hit.face[0], py = hit.y + hit.face[1], pz = hit.z + hit.face[2];
+    const cur = world.getBlock(px, py, pz);
+    const curBl = MC.BLOCKS[cur];
+    const id = MC.UI.selectedBlock();
+    if ((cur === B.AIR || cur === B.WATER || curBl.kind === 'cross') &&
+        !(MC.BLOCKS[id].solid && player.overlapsBlock(px, py, pz))) {
+      world.setBlock(px, py, pz, id);
+      effects.sound.place();
+      swing = 1;
+      return true;
+    }
+    return false;
+  }
   function doAction() {
     if (actionCooldown > 0) return;
-    const hit = targetBlock();
-    if (breakHeld) {
-      if (hit && MC.BLOCKS[hit.id].breakable) {
-        // convert the unwrapped ray hit to wrapped coords happens inside setBlock
-        world.setBlock(hit.x, hit.y, hit.z, B.AIR);
-        effects.burst(hit.x, hit.y, hit.z, hit.id);
-        effects.sound.break(MC.BLOCKS[hit.id].hard);
-        swing = 1;
-        actionCooldown = 0.22;
-      }
-    } else if (placeHeld) {
-      if (hit) {
-        const px = hit.x + hit.face[0], py = hit.y + hit.face[1], pz = hit.z + hit.face[2];
-        const cur = world.getBlock(px, py, pz);
-        const curBl = MC.BLOCKS[cur];
-        const id = MC.UI.selectedBlock();
-        if ((cur === B.AIR || cur === B.WATER || curBl.kind === 'cross') &&
-            !(MC.BLOCKS[id].solid && player.overlapsBlock(px, py, pz))) {
-          world.setBlock(px, py, pz, id);
-          effects.sound.place();
-          swing = 1;
-          actionCooldown = 0.22;
-        }
-      }
-    }
+    if (breakHeld) { if (tryBreak(targetBlock())) actionCooldown = 0.22; }
+    else if (placeHeld) { if (tryPlace(targetBlock())) actionCooldown = 0.22; }
   }
   function pickBlock() {
     const hit = targetBlock();
@@ -263,10 +275,21 @@
     }
   }
 
-  // pointer lock ------------------------------------------------------------
+  // pointer lock (desktop) / direct start (touch) ---------------------------
   const playBtn = document.getElementById('play-btn');
   playBtn.addEventListener('click', () => {
-    canvas.requestPointerLock();
+    if (IS_TOUCH) {
+      started = true;
+      locked = true; // no pointer lock on touch — "locked" just means playing
+      MC.UI.hideOverlay();
+      effects.sound.unlock();
+      try {
+        const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+        if (p && p.catch) p.catch(() => {});
+      } catch (e) { /* iOS has no fullscreen API — fine */ }
+    } else {
+      canvas.requestPointerLock();
+    }
   });
   document.getElementById('new-world-btn').addEventListener('click', () => {
     const s = String((Math.random() * 1e9) | 0);
@@ -294,6 +317,40 @@
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+  // phones rarely fire beforeunload — save when the app goes to background too
+  document.addEventListener('visibilitychange', () => { if (document.hidden) persist(); });
+
+  // --- touch controls ---------------------------------------------------------
+  let touchHighlightT = 0;
+  MC.Touch.init({
+    force: IS_TOUCH,
+    canvas, keys, player,
+    isPlaying: () => locked && started,
+    onTapPlace: (x, y) => { tryPlace(screenBlock(x, y)); },
+    onHoldBreak: (x, y) => {
+      const hit = screenBlock(x, y);
+      if (hit) {
+        highlight.position.set(hit.x + 0.5, hit.y + 0.5, hit.z + 0.5);
+        highlight.visible = true;
+        touchHighlightT = 0.4;
+      }
+      tryBreak(hit);
+    },
+    onToggleFly: () => {
+      player.flying = !player.flying;
+      MC.UI.toast(player.flying ? 'טיסה: פעיל' : 'טיסה: כבוי');
+    },
+    onPause: () => {
+      locked = false;
+      MC.UI.togglePalette(false);
+      MC.UI.toggleBigMap(false);
+      MC.UI.showOverlay(true);
+      persist();
+    }
+  });
+  // tapping/clicking the big map background closes it; same for the palette ✕
+  document.getElementById('bigmap').addEventListener('click', () => MC.UI.toggleBigMap(false));
+  document.getElementById('palette-close').addEventListener('click', () => MC.UI.togglePalette(false));
 
   // --- game loop -----------------------------------------------------------
   const miniCanvas = document.getElementById('minimap');
@@ -336,6 +393,7 @@
       timeOfDay = (timeOfDay + dt / CFG.DAY_LENGTH) % 1;
       if (locked) {
         player.update(dt, keys);
+        if (MC.Touch.enabled) MC.Touch.update();
         if (breakHeld || placeHeld) doAction();
       }
       actionCooldown = Math.max(0, actionCooldown - dt);
@@ -364,10 +422,15 @@
       scene.fog.near = baseFogNear; scene.fog.far = baseFogFar;
     }
 
-    // block highlight
-    const hit = locked ? targetBlock() : null;
-    highlight.visible = !!hit;
-    if (hit) highlight.position.set(hit.x + 0.5, hit.y + 0.5, hit.z + 0.5);
+    // block highlight: crosshair ray on desktop, brief flash where a touch broke
+    if (IS_TOUCH) {
+      touchHighlightT -= dt;
+      if (touchHighlightT <= 0) highlight.visible = false;
+    } else {
+      const hit = locked ? targetBlock() : null;
+      highlight.visible = !!hit;
+      if (hit) highlight.position.set(hit.x + 0.5, hit.y + 0.5, hit.z + 0.5);
+    }
 
     // hand bob + swing
     swing = Math.max(0, swing - dt * 5);
@@ -379,6 +442,8 @@
     effects.update(dt);
 
     // periodic UI updates
+    document.body.classList.toggle('flying', player.flying); // shows the descend button on touch
+
     uiTimer -= dt;
     if (uiTimer <= 0) {
       uiTimer = 0.25;

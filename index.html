@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>MCraft — עולם קוביות אינסופי</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -27,7 +27,7 @@
 
 <!-- block palette (E) -->
 <div id="palette" class="hidden">
-  <h3>בחירת בלוק לחריץ המסומן &nbsp;·&nbsp; E לסגירה</h3>
+  <h3>בחירת בלוק לחריץ המסומן <span id="palette-close">✕</span></h3>
   <div id="palette-grid"></div>
 </div>
 
@@ -69,6 +69,16 @@
       <div><b>N</b> — דילוג לבוקר</div>
       <div><b>F3</b> — מידע טכני</div>
     </div>
+    <div id="controls-help-touch">
+      <div><b>ג'ויסטיק שמאלי</b> — תנועה (עד הקצה = ריצה)</div>
+      <div><b>גרירה על המסך</b> — סיבוב המבט</div>
+      <div><b>הקשה קצרה</b> — הנחת בלוק</div>
+      <div><b>לחיצה ארוכה</b> — שבירת בלוק</div>
+      <div><b>⬆</b> — קפיצה / שחייה</div>
+      <div><b>✈</b> — מצב טיסה (⬇ לרדת)</div>
+      <div><b>🎒</b> — ארון הבלוקים</div>
+      <div><b>🗺</b> — מפת העולם</div>
+    </div>
     <p class="tiny">ההתקדמות (בלוקים ששיניתם, מיקום וזמן) נשמרת אוטומטית בדפדפן לכל Seed.</p>
   </div>
 </div>
@@ -88,6 +98,7 @@
 <script src="js/player.js"></script>
 <script src="js/minimap.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/touch.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
