@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMAINCRAFT — עולם קוביות אינסופי</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- HUD -->
+<div id="vignette"></div>
+<div id="water-overlay"></div>
+<div id="crosshair"><span></span><span></span></div>
+
+<div id="hotbar"></div>
+
+<div id="minimap-wrap">
+  <canvas id="minimap" width="176" height="176"></canvas>
+  <div id="minimap-label">M — מפה מלאה</div>
+</div>
+
+<div id="debug" class="hidden"></div>
+<div id="toast"></div>
+
+<!-- block palette (E) -->
+<div id="palette" class="hidden">
+  <h3>בחירת בלוק לחריץ המסומן &nbsp;·&nbsp; E לסגירה</h3>
+  <div id="palette-grid"></div>
+</div>
+
+<!-- full map (M) -->
+<div id="bigmap" class="hidden">
+  <canvas id="bigmap-canvas"></canvas>
+  <div class="bigmap-caption">המפה מתגלה ככל שחוקרים את העולם &nbsp;·&nbsp; M לסגירה</div>
+</div>
+
+<!-- start / pause overlay -->
+<div id="overlay">
+  <div id="overlay-inner">
+    <h1 class="logo">CMAINCRAFT</h1>
+    <p class="subtitle">עולם קוביות פרוצדורלי · נראה אינסופי · רץ כולו בדפדפן</p>
+
+    <div id="loading-row">
+      <div id="loading-bar"><div id="loading-fill"></div></div>
+      <div id="loading-text">בונה עולם...</div>
+    </div>
+
+    <button id="play-btn" disabled>טוען...</button>
+
+    <div id="seed-row">
+      Seed: <b id="seed-label"></b>
+      <button id="new-world-btn">🌍 עולם חדש</button>
+    </div>
+
+    <div id="controls-help">
+      <div><b>W A S D</b> — תנועה</div>
+      <div><b>רווח</b> — קפיצה / שחייה</div>
+      <div><b>Shift</b> — ריצה</div>
+      <div><b>עכבר שמאל</b> — שבירת בלוק</div>
+      <div><b>עכבר ימין</b> — הנחת בלוק</div>
+      <div><b>עכבר אמצעי</b> — העתקת בלוק מכוון</div>
+      <div><b>גלגלת / 1-9</b> — בחירה בסרגל</div>
+      <div><b>E</b> — ארון הבלוקים</div>
+      <div><b>F</b> — מצב טיסה</div>
+      <div><b>M</b> — מפת העולם</div>
+      <div><b>N</b> — דילוג לבוקר</div>
+      <div><b>F3</b> — מידע טכני</div>
+    </div>
+    <p class="tiny">ההתקדמות (בלוקים ששיניתם, מיקום וזמן) נשמרת אוטומטית בדפדפן לכל Seed.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+        onerror="document.getElementById('loading-text').textContent='שגיאה: נדרש חיבור אינטרנט לטעינת מנוע התלת-ממד (Three.js)'"></script>
+<script src="js/config.js"></script>
+<script src="js/noise.js"></script>
+<script src="js/blocks.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/worldgen.js"></script>
+<script src="js/world.js"></script>
+<script src="js/mesher.js"></script>
+<script src="js/sky.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/player.js"></script>
+<script src="js/minimap.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
