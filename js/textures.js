@@ -220,6 +220,37 @@ MC.buildAtlas = function () {
     speckle(T.SANDSTONE_TOP, ['#e9dfae', '#e2d5a2', '#efe6b8']);
   }
 
+  // --- air base materials ---
+  { // asphalt: dark speckled tarmac with occasional black pits
+    const [ox, oy] = speckle(T.ASPHALT, ['#3a3a3d', '#333336', '#404043', '#2c2c2f', '#363639']);
+    for (let i = 0; i < 10; i++) px(ox, oy, (rnd() * 16) | 0, (rnd() * 16) | 0, '#1c1c1e');
+  }
+  { // concrete: light precast panels with faint seam lines
+    const [ox, oy] = speckle(T.CONCRETE, ['#b9b9b2', '#c4c4bd', '#aeaea7', '#c9c9c2', '#bcbcb5']);
+    for (const y of [0, 7, 14]) for (let x = 0; x < TS; x++) if (rnd() < 0.75) px(ox, oy, x, y, '#96968f');
+    px(ox, oy, 7, 0, '#96968f'); for (let y = 0; y < TS; y++) if (rnd() < 0.7) px(ox, oy, 7, y, '#a3a39c');
+  }
+  { // corrugated metal: alternating vertical light/dark ribs
+    const [ox, oy] = at(T.METAL);
+    for (let x = 0; x < TS; x++) {
+      const rib = x % 4;
+      const base = rib === 0 ? '#8d949c' : rib === 1 ? '#c3cad2' : rib === 2 ? '#a7aeb6' : '#797f86';
+      for (let y = 0; y < TS; y++) px(ox, oy, x, y, rnd() < 0.08 ? '#5c6167' : base);
+    }
+  }
+  { // stripe: painted line marking block (white with light wear)
+    const [ox, oy] = speckle(T.STRIPE, ['#e9e9e2', '#f2f2ec', '#dcdcd5']);
+    for (let i = 0; i < 6; i++) px(ox, oy, (rnd() * 16) | 0, (rnd() * 16) | 0, '#c8c8c0');
+  }
+  { // beacon: warning light, red/orange glow like glowstone's palette
+    const [ox, oy] = speckle(T.BEACON, ['#7a2412', '#8a2c16', '#6b1c0e']);
+    for (let i = 0; i < 12; i++) {
+      const sx = (rnd() * 14) | 0, sy = (rnd() * 14) | 0;
+      px(ox, oy, sx, sy, '#ff5a33'); px(ox, oy, sx + 1, sy, '#ff8f3d');
+      px(ox, oy, sx, sy + 1, '#ff8f3d'); px(ox, oy, sx + 1, sy + 1, '#ffd08a');
+    }
+  }
+
   // --- average colour per block (particles, minimap) ---
   MC.BLOCK_COLORS = [];
   const img = ctx.getImageData(0, 0, canvas.width, canvas.height).data;

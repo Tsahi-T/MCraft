@@ -223,6 +223,7 @@ MC.WorldGen = function (seed) {
       (spruce ? stampSpruce : stampOak)(put, bx, bz, h + 1, wx, wz);
     }
 
+    MC.Airbase.stamp(data, cx, cz);
     return data;
   }
 
@@ -230,6 +231,7 @@ MC.WorldGen = function (seed) {
   function findSpawn() {
     for (let i = 0; i < 400; i++) {
       const wx = U.wrap(8 + i * 37), wz = U.wrap(8 + i * 53);
+      if (MC.Airbase.inOuter(wx, wz)) continue; // don't spawn the player inside a hangar wall
       const h = heightAt(wx, wz);
       const b = biomeAt(wx, wz, h);
       if (h > SEA + 1 && (b === BIO.PLAINS || b === BIO.FOREST || b === BIO.BEACH)) {

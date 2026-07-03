@@ -6,7 +6,8 @@ MC.T = {
   LOG_SIDE: 8, LOG_TOP: 9, PLANKS: 10, LEAVES: 11, WATER: 12, GLASS: 13, SNOW: 14, GRASS_SIDE_SNOW: 15,
   CACTUS_SIDE: 16, CACTUS_TOP: 17, FLOWER_RED: 18, FLOWER_YELLOW: 19, TALLGRASS: 20,
   COAL: 21, IRON: 22, GOLD: 23, DIAMOND: 24, BRICK: 25, GLOW: 26, LEAVES_SPRUCE: 27,
-  SANDSTONE_SIDE: 28, SANDSTONE_TOP: 29, ICE: 30, DEADBUSH: 31, LOG_SPRUCE: 32
+  SANDSTONE_SIDE: 28, SANDSTONE_TOP: 29, ICE: 30, DEADBUSH: 31, LOG_SPRUCE: 32,
+  ASPHALT: 33, CONCRETE: 34, METAL: 35, STRIPE: 36, BEACON: 37
 };
 
 MC.B = {
@@ -14,7 +15,8 @@ MC.B = {
   LOG: 8, LEAVES: 9, PLANKS: 10, WATER: 11, GLASS: 12, SNOWGRASS: 13, SNOW: 14,
   CACTUS: 15, FLOWER_RED: 16, FLOWER_YELLOW: 17, TALLGRASS: 18,
   COAL_ORE: 19, IRON_ORE: 20, GOLD_ORE: 21, DIAMOND_ORE: 22, BRICK: 23, GLOWSTONE: 24,
-  SPRUCE_LOG: 25, SPRUCE_LEAVES: 26, SANDSTONE: 27, ICE: 28, DEADBUSH: 29
+  SPRUCE_LOG: 25, SPRUCE_LEAVES: 26, SANDSTONE: 27, ICE: 28, DEADBUSH: 29,
+  ASPHALT: 30, CONCRETE: 31, METAL: 32, STRIPE: 33, BEACON: 34
 };
 
 // kind:    'solid' | 'cross' | 'fluid'
@@ -62,6 +64,11 @@ MC.B = {
   B[MC.B.SANDSTONE]  = def('אבן חול', { tiles: { top: T.SANDSTONE_TOP, bottom: T.SANDSTONE_TOP, side: T.SANDSTONE_SIDE }, hard: 2 });
   B[MC.B.ICE]        = def('קרח', { bucket: 'tr', opaque: false, occlude: false, tiles: { all: T.ICE }, hard: 1 });
   B[MC.B.DEADBUSH]   = def('שיח יבש', { kind: 'cross', bucket: 'cut', solid: false, opaque: false, occlude: false, tiles: { all: T.DEADBUSH }, hard: 0 });
+  B[MC.B.ASPHALT]    = def('אספלט', { tiles: { all: T.ASPHALT }, hard: 2 });
+  B[MC.B.CONCRETE]   = def('בטון', { tiles: { all: T.CONCRETE }, hard: 2 });
+  B[MC.B.METAL]      = def('מתכת', { tiles: { all: T.METAL }, hard: 2 });
+  B[MC.B.STRIPE]     = def('פס סימון', { tiles: { all: T.STRIPE }, hard: 1 });
+  B[MC.B.BEACON]     = def('פנס אזהרה', { tiles: { all: T.BEACON }, hard: 1 });
 
   MC.tileFor = function (id, face) {
     // face: 'top' | 'bottom' | 'side'
